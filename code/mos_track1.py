@@ -8,13 +8,11 @@ import torch
 import torchaudio
 import torch.nn as nn
 import torch.optim as optim
-import pandas as pd
 import laion_clap
 from torch.utils.data.dataset import Dataset
 from torch.utils.data import DataLoader
 from transformers import AutoModel
 from tqdm import tqdm
-from torch.utils.tensorboard import SummaryWriter
 import random
 random.seed(1984)
 from utils import *
@@ -100,20 +98,16 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--datadir', type=str, default="../data/MusicEval-phase1", required=False, help='Path of musiceval dataset')
-    parser.add_argument('--expname', type=str, required=False, default='exp1', help='tensorboard log and ckpt will be distinguished using the expname')
+    parser.add_argument('--expname', type=str, required=False, default='exp1', help='ckpt will be saved in 'track1_ckpt/EXPNAME'')
     args = parser.parse_args()
 
     DATA_DIR = args.datadir
     UPSTREAM_MODEL = 'CLAP-music'
     EXP_NAME = args.expname
     CKPT_DIR = '../track1_ckpt/' + EXP_NAME # checkpoint will be save here
-    LOG_DIR = '../track1_log/' + EXP_NAME    # tensorboard log will be save here
    
     if not os.path.exists(CKPT_DIR):
-        os.system('mkdir -p ' + CKPT_DIR)
-    if not os.path.exists(LOG_DIR):
-        os.system('mkdir -p ' + LOG_DIR)
-    
+        os.system('mkdir -p ' + CKPT_DIR)    
 
     wavdir = os.path.join(DATA_DIR, 'wav')
     trainlist = os.path.join(DATA_DIR, 'sets/train_mos_list.txt')
@@ -144,7 +138,6 @@ def main():
     BEST_EPOCH = 0
     BEST_PATH = os.path.join(CKPT_DIR, 'best_ckpt')
 
-    writter=SummaryWriter(LOG_DIR)
     for epoch in range(1,1001):
         STEPS=0
         net.train()
@@ -173,9 +166,6 @@ def main():
             train_epoch_loss += train_loss.item()
             train_epoch_loss1 += loss1.item()
             train_epoch_loss2 += loss2.item()
-        writter.add_scalar('train_loss/loss1', train_epoch_loss1 / STEPS, epoch)
-        writter.add_scalar('train_loss/loss2', train_epoch_loss2 / STEPS, epoch)
-        writter.add_scalar('train_loss/total_loss', train_epoch_loss / STEPS, epoch)
         print('EPOCH:' + str(epoch) + ', AVG EPOCH TRAIN LOSS: ' + str(train_epoch_loss / STEPS))
         
         # clear memory to avoid OOM
@@ -208,10 +198,7 @@ def main():
             valid_epoch_loss += valid_loss.item()
         avg_val_loss=valid_epoch_loss / VALSTEPS    
         print('EPOCH VAL LOSS: ' + str(avg_val_loss))
-        writter.add_scalar('valid_loss/loss1', valid_epoch_loss1 / VALSTEPS, epoch)
-        writter.add_scalar('valid_loss/loss2', valid_epoch_loss2 / VALSTEPS, epoch)
-        writter.add_scalar('valid_loss/total_loss',avg_val_loss,epoch)
-
+        
         if avg_val_loss < PREV_VAL_LOSS:    # Loss has decreased
             torch.save(net.state_dict(), BEST_PATH)
             BEST_EPOCH = epoch
@@ -223,7 +210,6 @@ def main():
                 print('loss has not decreased for ' + str(orig_patience) + ' epochs; early stopping at epoch ' + str(epoch))
                 break
     os.rename(BEST_PATH, os.path.join(CKPT_DIR, 'best_ckpt_'+str(BEST_EPOCH)))
-    writter.close()
     print('Finished Training, best epoch:', BEST_EPOCH)
 
 if __name__ == '__main__':

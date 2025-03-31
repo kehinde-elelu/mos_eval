@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 
 SPECIAL_S_IDS = {"S001", "S006", "S013", "S017", "S018", "S033"}    # DEMO system use special prompts list
 
