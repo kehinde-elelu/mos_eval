@@ -17,7 +17,7 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--datadir', type=str, default="../data/MusicEval-phase1", required=False, help='Path of musiceval dataset')
-    parser.add_argument('--ckptdir', type=str, required=False, default='../track1_ckpt/exp1/best_ckpt_29', help='your finetuned ckpt path')
+    parser.add_argument('--ckptdir', type=str, required=False, default='../track1_ckpt/exp1/best_ckpt_30', help='your finetuned ckpt path')
     args = parser.parse_args()
 
     UPSTREAM_MODEL = 'CLAP-music'
@@ -45,7 +45,7 @@ def main():
     wavdir = os.path.join(DATADIR, 'wav')
     test_list = os.path.join(DATADIR, 'sets/dev_mos_list.txt')
     test_set = MyDataset(wavdir, test_list) 
-    test_loader = DataLoader(test_set, batch_size=1, shuffle=True, num_workers=2, collate_fn=test_set.collate_fn)
+    test_loader = DataLoader(test_set, batch_size=1, shuffle=False, num_workers=2, collate_fn=test_set.collate_fn)
 
     total_loss = 0.0
     predictions_overall = { }  # overall prediction scores
@@ -72,8 +72,8 @@ def main():
         predictions_textual[filenames[0]] = output2[0]
     print("evaluation total loss:",total_loss)
 
-    truth_overall = { }  # overall true scores,未排序
-    truth_textual = { }  # textual true scores,未排序
+    truth_overall = { }  # overall true scores
+    truth_textual = { }  # textual true scores
     testf = open(test_list, 'r')
     for line in testf:
         parts = line.strip().split(',')

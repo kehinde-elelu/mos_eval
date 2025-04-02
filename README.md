@@ -60,17 +60,17 @@ Now you can start training the baseline system by
 
 ```shell
 cd ./code
-python mos_track1.py --datadir ./data/MusicEval-phase1  --expname EXPNAME
+python mos_track1.py --datadir ../data/MusicEval-phase1  --expname EXPNAME
 ```
 
-Once the training has finished, the best checkpoint can be found in `./track1_exp/EXPNAME/` directory, named `best_NUM.ckpt`.
+Once the training has finished, the best checkpoint can be found in `./track1_exp/EXPNAME/` directory, named `best_ckpt_NUM.ckpt`, where `NUM` is the best epoch.
 
 ### Predicting
 
 To run inference on development set using the checkpoint, run:
 
 ```shell
-python predict.py --datadir ./data --expname EXPNAME
+python predict.py
 ```
 
 This will generate `answer_track1.txt`, includes prediction scores for dev-set samples.  Also, it will print the utterance-level and system-level metrics in both OVERALL QUALITY and TEXTUAL ALIGNMENT dimensions, like below:
@@ -78,26 +78,27 @@ This will generate `answer_track1.txt`, includes prediction scores for dev-set s
 ```
 ==========UTTERANCE===========
 ======OVERALL QUALITY=======
-[UTTERANCE] Test error= 0.407076
-[UTTERANCE] Linear correlation coefficient= 0.752050
-[UTTERANCE] Spearman rank correlation coefficient= 0.760752
-[UTTERANCE] Kendall Tau rank correlation coefficient= 0.570974
+[UTTERANCE] Test error= 0.617519
+[UTTERANCE] Linear correlation coefficient= 0.690845
+[UTTERANCE] Spearman rank correlation coefficient= 0.688106
+[UTTERANCE] Kendall Tau rank correlation coefficient= 0.514346
 ======TEXTUAL ALIGNMENT=======
-[UTTERANCE] Test error= 0.507618
-[UTTERANCE] Linear correlation coefficient= 0.593813
-[UTTERANCE] Spearman rank correlation coefficient= 0.581332
-[UTTERANCE] Kendall Tau rank correlation coefficient= 0.422476
+[UTTERANCE] Test error= 0.593582
+[UTTERANCE] Linear correlation coefficient= 0.580330
+[UTTERANCE] Spearman rank correlation coefficient= 0.542522
+[UTTERANCE] Kendall Tau rank correlation coefficient= 0.393303
 ==========SYSTEM===========
 ======OVERALL QUALITY=======
-[SYSTEM] Test error= 0.186899
-[SYSTEM] Linear correlation coefficient= 0.878047
-[SYSTEM] Spearman rank correlation coefficient= 0.882266
-[SYSTEM] Kendall Tau rank correlation coefficient= 0.704433
+[SYSTEM] Test error= 0.386326
+[SYSTEM] Linear correlation coefficient= 0.801622
+[SYSTEM] Spearman rank correlation coefficient= 0.776355
+[SYSTEM] Kendall Tau rank correlation coefficient= 0.586207
 ======TEXTUAL ALIGNMENT=======
-[SYSTEM] Test error= 0.143016
-[SYSTEM] Linear correlation coefficient= 0.783773
-[SYSTEM] Spearman rank correlation coefficient= 0.795567
-[SYSTEM] Kendall Tau rank correlation coefficient= 0.596059
+[SYSTEM] Test error= 0.232161
+[SYSTEM] Linear correlation coefficient= 0.746149
+[SYSTEM] Spearman rank correlation coefficient= 0.720197
+[SYSTEM] Kendall Tau rank correlation coefficient= 0.507389
+
 ```
 
 ### Submission to CodaLab
@@ -105,9 +106,6 @@ This will generate `answer_track1.txt`, includes prediction scores for dev-set s
 The submission format of the CodaLab competition platform is a zip file (can be any name) containing a text file called `answer.txt` (this naming is a **MUST**).  
 
 The competition link will be released soon.
-## Evaluation Phase (Phase 2)
-
-Coming soon.
 
 ## **Acknowledgments**
 

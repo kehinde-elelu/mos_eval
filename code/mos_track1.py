@@ -66,6 +66,8 @@ class MyDataset(Dataset):
         wavname = self.wavnames[idx]
         wavpath = os.path.join(self.wavdir, wavname)
         wav = torchaudio.load(wavpath)[0]
+        if wav.size(1) > 480000:    # 16khz*30s
+            wav = wav[:,:480000]
         overall_score = self.mos_overall_lookup[wavname]
         coherence_score = self.mos_coherence_lookup[wavname]
         return wav, overall_score, coherence_score, wavname
@@ -98,7 +100,7 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--datadir', type=str, default="../data/MusicEval-phase1", required=False, help='Path of musiceval dataset')
-    parser.add_argument('--expname', type=str, required=False, default='exp1', help='ckpt will be saved in 'track1_ckpt/EXPNAME'')
+    parser.add_argument('--expname', type=str, required=False, default='exp1', help='ckpt will be saved in track1_ckpt/EXPNAME')
     args = parser.parse_args()
 
     DATA_DIR = args.datadir
