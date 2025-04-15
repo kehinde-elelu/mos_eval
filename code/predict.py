@@ -8,16 +8,19 @@ import laion_clap
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 from mos_track1 import MosPredictor, MyDataset
+import datetime 
 from utils import *
 
+current_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+os.makedirs('data/result', exist_ok=True)
 
 def systemID(wavID):
     return wavID.replace("audiomos2025-track1-","").split('_')[0]
-def main():    
 
+def main():    
     parser = argparse.ArgumentParser()
     parser.add_argument('--datadir', type=str, default="../data/MusicEval-phase1", required=False, help='Path of musiceval dataset')
-    parser.add_argument('--ckptdir', type=str, required=False, default='../track1_ckpt/exp1/best_ckpt_30', help='your finetuned ckpt path')
+    parser.add_argument('--ckptdir', type=str, required=False, default='../track1_ckpt/exp1/best_ckpt_32', help='your finetuned ckpt path')
     args = parser.parse_args()
 
     UPSTREAM_MODEL = 'CLAP-music'
@@ -105,26 +108,30 @@ def main():
     pred_overall_array = np.array(prediction_overall_list)
     truth_textual_array = np.array(truth_textual_list)
     pred_textual_array = np.array(prediction_textual_list)
-    ### UTTERANCE
-    print("==========UTTERANCE===========")
-    print("======OVERALL QUALITY=======")
-    MSE1=np.mean((truth_overall_array-pred_overall_array)**2)
-    print('[UTTERANCE] Test error= %f' % MSE1)
-    LCC1=np.corrcoef(truth_overall_array, pred_overall_array)
-    print('[UTTERANCE] Linear correlation coefficient= %f' % LCC1[0][1])
-    SRCC1=scipy.stats.spearmanr(truth_overall_array.T, pred_overall_array.T)
-    print('[UTTERANCE] Spearman rank correlation coefficient= %f' % SRCC1[0])
-    KTAU1=scipy.stats.kendalltau(truth_overall_array, pred_overall_array)
-    print('[UTTERANCE] Kendall Tau rank correlation coefficient= %f' % KTAU1[0])
-    print("======TEXTUAL ALIGNMENT=======")
-    MSE2=np.mean((truth_textual_array-pred_textual_array)**2)
-    print('[UTTERANCE] Test error= %f' % MSE2)
-    LCC2=np.corrcoef(truth_textual_array, pred_textual_array)
-    print('[UTTERANCE] Linear correlation coefficient= %f' % LCC2[0][1])
-    SRCC2=scipy.stats.spearmanr(truth_textual_array.T, pred_textual_array.T)
-    print('[UTTERANCE] Spearman rank correlation coefficient= %f' % SRCC2[0])
-    KTAU2=scipy.stats.kendalltau(truth_textual_array, pred_textual_array)
-    print('[UTTERANCE] Kendall Tau rank correlation coefficient= %f' % KTAU2[0])
+    
+    # Open a log file to write the results
+    log_file = open(f'data/result/results_{current_time}.txt', 'w')
+
+    # Replace print statements with log_file.write
+    log_file.write("==========UTTERANCE===========\n")
+    log_file.write("======OVERALL QUALITY=======\n")
+    MSE1 = np.mean((truth_overall_array - pred_overall_array) ** 2)
+    log_file.write('[UTTERANCE] Test error= %f\n' % MSE1)
+    LCC1 = np.corrcoef(truth_overall_array, pred_overall_array)
+    log_file.write('[UTTERANCE] Linear correlation coefficient= %f\n' % LCC1[0][1])
+    SRCC1 = scipy.stats.spearmanr(truth_overall_array.T, pred_overall_array.T)
+    log_file.write('[UTTERANCE] Spearman rank correlation coefficient= %f\n' % SRCC1[0])
+    KTAU1 = scipy.stats.kendalltau(truth_overall_array, pred_overall_array)
+    log_file.write('[UTTERANCE] Kendall Tau rank correlation coefficient= %f\n' % KTAU1[0])
+    log_file.write("======TEXTUAL ALIGNMENT=======\n")
+    MSE2 = np.mean((truth_textual_array - pred_textual_array) ** 2)
+    log_file.write('[UTTERANCE] Test error= %f\n' % MSE2)
+    LCC2 = np.corrcoef(truth_textual_array, pred_textual_array)
+    log_file.write('[UTTERANCE] Linear correlation coefficient= %f\n' % LCC2[0][1])
+    SRCC2 = scipy.stats.spearmanr(truth_textual_array.T, pred_textual_array.T)
+    log_file.write('[UTTERANCE] Spearman rank correlation coefficient= %f\n' % SRCC2[0])
+    KTAU2 = scipy.stats.kendalltau(truth_textual_array, pred_textual_array)
+    log_file.write('[UTTERANCE] Kendall Tau rank correlation coefficient= %f\n' % KTAU2[0])
     
     ### SYSTEM
     true_sys_MOS_avg_overall = { }  # dict{sysname:true_avg_mos}
@@ -175,25 +182,29 @@ def main():
     sys_pred_overall_array = np.array(sys_pred_overall_list)
     sys_pred_textual_array = np.array(sys_pred_textual_list)
 
-    print("==========SYSTEM===========")
-    print("======OVERALL QUALITY=======")
-    MSE1=np.mean((sys_truth_overall_array-sys_pred_overall_array)**2)
-    print('[SYSTEM] Test error= %f' % MSE1)
-    LCC1=np.corrcoef(sys_truth_overall_array, sys_pred_overall_array)
-    print('[SYSTEM] Linear correlation coefficient= %f' % LCC1[0][1])
-    SRCC1=scipy.stats.spearmanr(sys_truth_overall_array.T, sys_pred_overall_array.T)
-    print('[SYSTEM] Spearman rank correlation coefficient= %f' % SRCC1[0])
-    KTAU1=scipy.stats.kendalltau(sys_truth_overall_array, sys_pred_overall_array)
-    print('[SYSTEM] Kendall Tau rank correlation coefficient= %f' % KTAU1[0])
-    print("======TEXTUAL ALIGNMENT=======")
-    MSE2=np.mean((sys_truth_textual_array-sys_pred_textual_array)**2)
-    print('[SYSTEM] Test error= %f' % MSE2)
-    LCC2=np.corrcoef(sys_truth_textual_array, sys_pred_textual_array)
-    print('[SYSTEM] Linear correlation coefficient= %f' % LCC2[0][1])
-    SRCC2=scipy.stats.spearmanr(sys_truth_textual_array.T, sys_pred_textual_array.T)
-    print('[SYSTEM] Spearman rank correlation coefficient= %f' % SRCC2[0])
-    KTAU2=scipy.stats.kendalltau(sys_truth_textual_array, sys_pred_textual_array)
-    print('[SYSTEM] Kendall Tau rank correlation coefficient= %f' % KTAU2[0])
+    # Replace all print statements with log_file.write
+    log_file.write("==========SYSTEM===========\n")
+    log_file.write("======OVERALL QUALITY=======\n")
+    MSE1 = np.mean((sys_truth_overall_array - sys_pred_overall_array) ** 2)
+    log_file.write('[SYSTEM] Test error= %f\n' % MSE1)
+    LCC1 = np.corrcoef(sys_truth_overall_array, sys_pred_overall_array)
+    log_file.write('[SYSTEM] Linear correlation coefficient= %f\n' % LCC1[0][1])
+    SRCC1 = scipy.stats.spearmanr(sys_truth_overall_array.T, sys_pred_overall_array.T)
+    log_file.write('[SYSTEM] Spearman rank correlation coefficient= %f\n' % SRCC1[0])
+    KTAU1 = scipy.stats.kendalltau(sys_truth_overall_array, sys_pred_overall_array)
+    log_file.write('[SYSTEM] Kendall Tau rank correlation coefficient= %f\n' % KTAU1[0])
+    log_file.write("======TEXTUAL ALIGNMENT=======\n")
+    MSE2 = np.mean((sys_truth_textual_array - sys_pred_textual_array) ** 2)
+    log_file.write('[SYSTEM] Test error= %f\n' % MSE2)
+    LCC2 = np.corrcoef(sys_truth_textual_array, sys_pred_textual_array)
+    log_file.write('[SYSTEM] Linear correlation coefficient= %f\n' % LCC2[0][1])
+    SRCC2 = scipy.stats.spearmanr(sys_truth_textual_array.T, sys_pred_textual_array.T)
+    log_file.write('[SYSTEM] Spearman rank correlation coefficient= %f\n' % SRCC2[0])
+    KTAU2 = scipy.stats.kendalltau(sys_truth_textual_array, sys_pred_textual_array)
+    log_file.write('[SYSTEM] Kendall Tau rank correlation coefficient= %f\n' % KTAU2[0])
+
+    # Close the log file
+    log_file.close()
     
     # generate answer.txt: wavid,overall_score,textual_score
     ans = open(outfile, 'w')
@@ -204,3 +215,29 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+
+# evaluation total loss: 228.50585389137268
+# ==========UTTERANCE===========
+# ======OVERALL QUALITY=======
+# [UTTERANCE] Test error= 0.468818
+# [UTTERANCE] Linear correlation coefficient= 0.712596
+# [UTTERANCE] Spearman rank correlation coefficient= 0.715274
+# [UTTERANCE] Kendall Tau rank correlation coefficient= 0.536642
+# ======TEXTUAL ALIGNMENT=======
+# [UTTERANCE] Test error= 0.550059
+# [UTTERANCE] Linear correlation coefficient= 0.599341
+# [UTTERANCE] Spearman rank correlation coefficient= 0.573925
+# [UTTERANCE] Kendall Tau rank correlation coefficient= 0.420546
+# ==========SYSTEM===========
+# ======OVERALL QUALITY=======
+# [SYSTEM] Test error= 0.240479
+# [SYSTEM] Linear correlation coefficient= 0.806361
+# [SYSTEM] Spearman rank correlation coefficient= 0.764532
+# [SYSTEM] Kendall Tau rank correlation coefficient= 0.591133
+# ======TEXTUAL ALIGNMENT=======
+# [SYSTEM] Test error= 0.204943
+# [SYSTEM] Linear correlation coefficient= 0.742363
+# [SYSTEM] Spearman rank correlation coefficient= 0.626108
+# [SYSTEM] Kendall Tau rank correlation coefficient= 0.463054
