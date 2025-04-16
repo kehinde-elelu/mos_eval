@@ -2,3 +2,29 @@ upstream/
 track1_ckpt/
 data/
 code/data/
+
+
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+env/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Model files
+*.joblib
+*.pkl
+
+
+# Python compiled files
+*.pyc

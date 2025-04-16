@@ -100,6 +100,31 @@ This will generate `answer_track1.txt`, includes prediction scores for dev-set s
 [SYSTEM] Kendall Tau rank correlation coefficient= 0.507389
 
 ```
+```
+==========48===========
+==========UTTERANCE===========
+======OVERALL QUALITY=======
+[UTTERANCE] Test error= 0.345045
+[UTTERANCE] Linear correlation coefficient= 0.771456
+[UTTERANCE] Spearman rank correlation coefficient= 0.778182
+[UTTERANCE] Kendall Tau rank correlation coefficient= 0.590858
+======TEXTUAL ALIGNMENT=======
+[UTTERANCE] Test error= 0.467342
+[UTTERANCE] Linear correlation coefficient= 0.628883
+[UTTERANCE] Spearman rank correlation coefficient= 0.621530
+[UTTERANCE] Kendall Tau rank correlation coefficient= 0.459882
+==========SYSTEM===========
+======OVERALL QUALITY=======
+[SYSTEM] Test error= 0.099312
+[SYSTEM] Linear correlation coefficient= 0.920829
+[SYSTEM] Spearman rank correlation coefficient= 0.896059
+[SYSTEM] Kendall Tau rank correlation coefficient= 0.729064
+======TEXTUAL ALIGNMENT=======
+[SYSTEM] Test error= 0.088042
+[SYSTEM] Linear correlation coefficient= 0.879001
+[SYSTEM] Spearman rank correlation coefficient= 0.849754
+[SYSTEM] Kendall Tau rank correlation coefficient= 0.689655
+```
 
 ### Submission to CodaLab
 
