@@ -16,6 +16,7 @@ from tqdm import tqdm
 import random
 random.seed(1984)
 from utils import *
+from model.CRNNs import CRNN10, CRNN10_v2
     
 class MosPredictor(nn.Module):
     def __init__(self, up_model, up_out_dim):
@@ -28,7 +29,6 @@ class MosPredictor(nn.Module):
         self.textual_mlp_layer1 = nn.Linear(in_features = self.upstream_feat_dim*2, out_features = 256)
         self.textual_mlp_layer2 = nn.Linear(in_features = 256, out_features = 64)
         self.textual_mlp_layer3 = nn.Linear(in_features = 64, out_features = 1)
-
 
     def forward(self, wavs, texts):
         wav_embed = self.upstream_model.get_audio_embedding_from_data(wavs, use_tensor = True).to(device)
@@ -129,8 +129,10 @@ def main():
     validset = MyDataset(wavdir, validlist)
     validloader = DataLoader(validset, batch_size=8, shuffle=True, num_workers=2, collate_fn=validset.collate_fn)
 
-    net = MosPredictor(model, UPSTREAM_OUT_DIM).to(device)
-    
+    # net = MosPredictor(model, UPSTREAM_OUT_DIM).to(device)
+    # net = CRNN10(model, UPSTREAM_OUT_DIM).to(device)
+    net = CRNN10_v2(model, UPSTREAM_OUT_DIM).to(device)
+
     criterion = nn.L1Loss()
     optimizer = optim.SGD(net.parameters(), lr=5e-4, momentum=0.9)    
 

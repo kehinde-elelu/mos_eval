@@ -10,9 +10,11 @@ from tqdm import tqdm
 from mos_track1 import MosPredictor, MyDataset
 import datetime 
 from utils import *
+from model.CRNNs import CRNN10, CRNN10_v2
 
 current_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 os.makedirs('data/result', exist_ok=True)
+model_number = 48
 
 def systemID(wavID):
     return wavID.replace("audiomos2025-track1-","").split('_')[0]
@@ -20,7 +22,7 @@ def systemID(wavID):
 def main():    
     parser = argparse.ArgumentParser()
     parser.add_argument('--datadir', type=str, default="../data/MusicEval-phase1", required=False, help='Path of musiceval dataset')
-    parser.add_argument('--ckptdir', type=str, required=False, default='../track1_ckpt/exp1/best_ckpt_32', help='your finetuned ckpt path')
+    parser.add_argument('--ckptdir', type=str, required=False, default=f'../track1_ckpt/EXPNAME/best_ckpt_{model_number}', help='your finetuned ckpt path')
     args = parser.parse_args()
 
     UPSTREAM_MODEL = 'CLAP-music'
@@ -34,7 +36,8 @@ def main():
     if UPSTREAM_MODEL == 'CLAP-music':
         SSL_OUT_DIM= 512 
         model = laion_clap.CLAP_Module(enable_fusion=False, device=device, amodel= 'HTSAT-base')
-        net = MosPredictor(model, SSL_OUT_DIM).to(device)
+        # net = MosPredictor(model, SSL_OUT_DIM).to(device)
+        net = CRNN10_v2(model, SSL_OUT_DIM).to(device)
         net.eval()
     else:
         print('*** ERROR *** ' + UPSTREAM_MODEL + ' not supported.')
@@ -113,6 +116,7 @@ def main():
     log_file = open(f'data/result/results_{current_time}.txt', 'w')
 
     # Replace print statements with log_file.write
+    log_file.write(f"=========={model_number}===========\n")
     log_file.write("==========UTTERANCE===========\n")
     log_file.write("======OVERALL QUALITY=======\n")
     MSE1 = np.mean((truth_overall_array - pred_overall_array) ** 2)
