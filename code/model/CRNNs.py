@@ -41,7 +41,7 @@ class CRNN10(nn.Module):
         self.overall_mlp_layer1 = nn.Linear(in_features=1024, out_features=256)
         self.overall_mlp_layer2 = nn.Linear(in_features=256, out_features=64)
         self.overall_mlp_layer3 = nn.Linear(in_features=64, out_features=1)
-        # self.textual_mlp_layer1 = nn.Linear(in_features=self.upstream_feat_dim * 2, out_features=256)
+        self.textual_mlp_layer1 = nn.Linear(in_features=self.upstream_feat_dim * 2, out_features=256)
         self.textual_mlp_layer1 = nn.Linear(in_features=1536, out_features=256)
         self.textual_mlp_layer2 = nn.Linear(in_features=256, out_features=64)
         self.textual_mlp_layer3 = nn.Linear(in_features=64, out_features=1)
@@ -79,7 +79,7 @@ class CRNN10_v2(nn.Module):
         self.upstream_model = up_model
         self.upstream_feat_dim = up_out_dim
 
-        # Add 4 ConvBlocks
+        # Add 6 ConvBlocks (2 additional blocks added)
         self.conv_block1 = nn.Sequential(
             nn.Conv1d(in_channels=up_out_dim, out_channels=64, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
@@ -101,8 +101,8 @@ class CRNN10_v2(nn.Module):
             nn.MaxPool1d(kernel_size=2)
         )
 
-        # Existing MLP layers
-        self.overall_mlp_layer1 = nn.Linear(in_features=512, out_features=256)
+        # Update MLP layers to match the new output dimensions
+        self.overall_mlp_layer1 = nn.Linear(in_features=2048, out_features=256)
         self.overall_mlp_layer2 = nn.Linear(in_features=256, out_features=64)
         self.overall_mlp_layer3 = nn.Linear(in_features=64, out_features=1)
         self.textual_mlp_layer1 = nn.Linear(in_features=self.upstream_feat_dim * 2, out_features=256)
@@ -115,17 +115,17 @@ class CRNN10_v2(nn.Module):
 
         # Expand sequence length
         wav_embed = wav_embed.unsqueeze(-1)  # Add a sequence length dimension
-        wav_embed = wav_embed.repeat(1, 1, 16)  # Repeat along the sequence length dimension (e.g., 10 times)
+        wav_embed = wav_embed.repeat(1, 1, 16)  # Repeat along the sequence length dimension 
 
         # Pass through ConvBlocks
-        # print(wav_embed.shape)
         wav_embed = self.conv_block1(wav_embed)
         wav_embed = self.conv_block2(wav_embed)
         wav_embed = self.conv_block3(wav_embed)
         wav_embed = self.conv_block4(wav_embed)
         wav_embed = wav_embed.mean(dim=2)  # Global average pooling over the sequence length
 
-        combine_embed = torch.cat((wav_embed, text_embed), dim=1)  # bs*1024        
+        # print("=====", (wav_embed.shape, "=====", text_embed.shape))
+        combine_embed = torch.cat((wav_embed, text_embed), dim=1)  # bs*2048        
 
         hidden1 = self.overall_mlp_layer1(wav_embed)
         hidden1_2 = self.overall_mlp_layer2(hidden1)

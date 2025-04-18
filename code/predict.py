@@ -14,7 +14,7 @@ from model.CRNNs import CRNN10, CRNN10_v2
 
 current_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 os.makedirs('data/result', exist_ok=True)
-model_number = 48
+model_number = 65
 
 def systemID(wavID):
     return wavID.replace("audiomos2025-track1-","").split('_')[0]
